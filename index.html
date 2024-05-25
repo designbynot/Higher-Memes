@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avant Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        #photo-container {
+            perspective: 1000px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            padding-top: 100px;
+        }
+        .photo {
+            width: 200px;
+            height: auto;
+            margin: 10px;
+            transform: rotateY(var(--angle));
+            transition: transform 0.5s, width 0.5s, height 0.5s, top 0.5s, left 0.5s;
+            position: relative;
+            cursor: pointer;
+        }
+        .photo img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        .enlarged {
+            position: absolute;
+            width: auto;
+            height: auto;
+            max-width: 80%;
+            max-height: 80%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        /* Hamburger menu styling */
+        .menu {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1001;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .menu span {
+            display: block;
+            width: 30px;
+            height: 4px;
+            margin: 4px 0;
+            background: #000;
+            transition: 0.4s;
+        }
+        .menu-links {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            z-index: 1000;
+        }
+        .menu-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 10px 0;
+        }
+        .menu-links .close {
+            cursor: pointer;
+            color: #fff;
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        .menu.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 5px);
+        }
+        .menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -5px);
+        }
+        .menu.active + .menu-links {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="menu-links">
+        <a href="https://warpcast.com/~/channel/higher" target="_blank">FC</a>
+        <a href="https://zora.co/explore/higher" target="_blank">ZORA</a>
+        <a href="https://base.party.app/party/0x8177b34687bC8B99C205e533ae7DD7c6C9D07a66" target="_blank">PARTY</a>
+        <a href="https://swap.defillama.com/?chain=base&from=0x0000000000000000000000000000000000000000&to=0x0578d8a44db98b23bf096a382e016e29a5ce0ffe" target="_blank">SWAP</a>
+        <a href="https://coinmarketcap.com/currencies/higher/" target="_blank">CMC</a>
+        <div class="close" onclick="toggleMenu()">X</div>
+    </div>
+    <div id="photo-container"></div>
+
+    <script>
+        const photoContainer = document.getElementById('photo-container');
+        let currentIndex = -1; // Track the currently enlarged photo index
+
+        // Predefined list of image paths
+        const images = [];
+        for (let i = 1; i <= 90; i++) {
+            images.push(`images/HIGHERWAV${i}.png`);
+        }
+
+        // Function to load images into the gallery
+        function loadImages(imagePaths) {
+            imagePaths.forEach((image, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.classList.add('photo');
+                photoDiv.style.setProperty('--angle', `${index * 10}deg`);
+                photoDiv.innerHTML = `<img src="${image}" alt="Photo">`;
+                photoDiv.addEventListener('click', () => {
+                    enlargePhoto(photoDiv, index);
+                });
+                photoContainer.appendChild(photoDiv);
+            });
+        }
+
+        function enlargePhoto(photoDiv, index) {
+            if (photoDiv.classList.contains('enlarged')) {
+                photoDiv.classList.remove('enlarged');
+                photoDiv.style.top = ''; // Reset top position
+                currentIndex = -1; // Reset the current index
+            } else {
+                document.querySelectorAll('.photo').forEach(p => {
+                    p.classList.remove('enlarged');
+                    p.style.top = ''; // Reset top position for all photos
+                });
+                const scrollY = window.scrollY;
+                photoDiv.style.top = `${scrollY + window.innerHeight / 2}px`;
+                photoDiv.classList.add('enlarged');
+                currentIndex = index; // Update the current index
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (currentIndex === -1) return; // No photo is enlarged
+
+            if (event.key === 'ArrowLeft') {
+                navigatePhotos(-1); // Navigate to the previous photo
+            } else if (event.key === 'ArrowRight') {
+                navigatePhotos(1); // Navigate to the next photo
+            }
+        });
+
+        function navigatePhotos(direction) {
+            const photos = document.querySelectorAll('.photo');
+            let newIndex = currentIndex + direction;
+
+            if (newIndex < 0) {
+                newIndex = photos.length - 1; // Wrap around to the last photo
+            } else if (newIndex >= photos.length) {
+                newIndex = 0; // Wrap around to the first photo
+            }
+
+            enlargePhoto(photos[newIndex], newIndex);
+        }
+
+        function toggleMenu() {
+            const menu = document.querySelector('.menu');
+            const menuLinks = document.querySelector('.menu-links');
+            menu.classList.toggle('active');
+            menuLinks.classList.toggle('active');
+        }
+
+        // Load predefined images
+        loadImages(images);
+    </script>
+</body>
+</html>
