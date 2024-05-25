@@ -105,6 +105,16 @@
         .menu.active + .menu-links {
             display: flex;
         }
+        /* Mobile-friendly adjustments */
+        @media (max-width: 600px) {
+            .photo {
+                width: 100px;
+            }
+            .enlarged {
+                max-width: 90%;
+                max-height: 90%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -118,7 +128,7 @@
         <a href="https://zora.co/explore/higher" target="_blank">ZORA</a>
         <a href="https://base.party.app/party/0x8177b34687bC8B99C205e533ae7DD7c6C9D07a66" target="_blank">PARTY</a>
         <a href="https://swap.defillama.com/?chain=base&from=0x0000000000000000000000000000000000000000&to=0x0578d8a44db98b23bf096a382e016e29a5ce0ffe" target="_blank">SWAP</a>
-        <a href="https://coinmarketcap.com/currencies/higher/" target="_blank">CMC</a>
+        <a href="#" target="_blank">CMC</a>
         <div class="close" onclick="toggleMenu()">X</div>
     </div>
     <div id="photo-container"></div>
@@ -126,6 +136,7 @@
     <script>
         const photoContainer = document.getElementById('photo-container');
         let currentIndex = -1; // Track the currently enlarged photo index
+        let startX, endX; // Variables to track swipe gestures
 
         // Predefined list of image paths
         const images = [];
@@ -139,7 +150,13 @@
                 const photoDiv = document.createElement('div');
                 photoDiv.classList.add('photo');
                 photoDiv.style.setProperty('--angle', `${index * 10}deg`);
-                photoDiv.innerHTML = `<img src="${image}" alt="Photo">`;
+                const img = new Image();
+                img.src = image;
+                img.alt = 'Photo';
+                img.onerror = () => {
+                    img.src = 'path/to/placeholder/image.png'; // Provide a path to a placeholder image if original fails
+                };
+                photoDiv.appendChild(img);
                 photoDiv.addEventListener('click', () => {
                     enlargePhoto(photoDiv, index);
                 });
@@ -193,6 +210,29 @@
             menu.classList.toggle('active');
             menuLinks.classList.toggle('active');
         }
+
+        // Swipe detection
+        document.addEventListener('touchstart', (event) => {
+            if (event.touches.length === 1) {
+                startX = event.touches[0].clientX;
+            }
+        });
+
+        document.addEventListener('touchmove', (event) => {
+            if (event.touches.length === 1) {
+                endX = event.touches[0].clientX;
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (currentIndex !== -1) {
+                if (startX - endX > 50) {
+                    navigatePhotos(1); // Swipe left to go to the next photo
+                } else if (endX - startX > 50) {
+                    navigatePhotos(-1); // Swipe right to go to the previous photo
+                }
+            }
+        });
 
         // Load predefined images
         loadImages(images);
