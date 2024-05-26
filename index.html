@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Higher Memes</title>
-    <link rel="icon" href="images/icon.png" type="image/x-icon">
+    <title>Avant Gallery</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="manifest.json">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -129,12 +130,22 @@
         <a href="https://zora.co/explore/higher" target="_blank">ZORA</a>
         <a href="https://base.party.app/party/0x8177b34687bC8B99C205e533ae7DD7c6C9D07a66" target="_blank">PARTY</a>
         <a href="https://swap.defillama.com/?chain=base&from=0x0000000000000000000000000000000000000000&to=0x0578d8a44db98b23bf096a382e016e29a5ce0ffe" target="_blank">SWAP</a>
-        <a href="#" target="_blank">CMC</a>
+        <a href="https://coinmarketcap.com/currencies/higher/" target="_blank">CMC</a>
         <div class="close" onclick="toggleMenu()">X</div>
     </div>
     <div id="photo-container"></div>
 
     <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(error) {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+
         const photoContainer = document.getElementById('photo-container');
         let currentIndex = -1; // Track the currently enlarged photo index
         let startX, endX; // Variables to track swipe gestures
