@@ -95,7 +95,17 @@ const assets = [
   '/images/HIGHERWAV87.png',
   '/images/HIGHERWAV88.png',
   '/images/HIGHERWAV89.png',
-  '/images/HIGHERWAV90.png'
+  '/images/HIGHERWAV90.png',
+  '/images/HIGHERWAV91.png',
+  '/images/HIGHERWAV92.png',
+  '/images/HIGHERWAV93.png',
+  '/images/HIGHERWAV94.png',
+  '/images/HIGHERWAV95.png',
+  '/images/HIGHERWAV96.png',
+  '/images/HIGHERWAV97.png',
+  '/images/HIGHERWAV98.png',
+  '/images/HIGHERWAV99.png',
+  '/images/HIGHERWAV100.png'
   // ... include all your image paths
 ];
 

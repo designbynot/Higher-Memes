@@ -1,126 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avant Gallery</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="manifest" href="manifest.json">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-        #photo-container {
-            perspective: 1000px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            flex-wrap: wrap;
-            position: relative;
-            padding-top: 100px;
-        }
-        .photo {
-            width: 200px;
-            height: auto;
-            margin: 10px;
-            transform: rotateY(var(--angle));
-            transition: transform 0.5s, width 0.5s, height 0.5s, top 0.5s, left 0.5s;
-            position: relative;
-            cursor: pointer;
-        }
-        .photo img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-        }
-        .enlarged {
-            position: absolute;
-            width: auto;
-            height: auto;
-            max-width: 80%;
-            max-height: 80%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-        }
-        /* Hamburger menu styling */
-        .menu {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 1001;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .menu span {
-            display: block;
-            width: 30px;
-            height: 4px;
-            margin: 4px 0;
-            background: #000;
-            transition: 0.4s;
-        }
-        .menu-links {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            position: fixed;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #000;
-            color: #fff;
-            padding: 20px;
-            z-index: 1000;
-        }
-        .menu-links a {
-            color: #fff;
-            text-decoration: none;
-            margin: 10px 0;
-        }
-        .menu-links .close {
-            cursor: pointer;
-            color: #fff;
-            margin-top: 20px;
-            font-size: 24px;
-        }
-        .menu.active span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 5px);
-        }
-        .menu.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .menu.active span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -5px);
-        }
-        .menu.active + .menu-links {
-            display: flex;
-        }
-        /* Mobile-friendly adjustments */
-        @media (max-width: 600px) {
-            .photo {
-                width: 100px;
-            }
-            .enlarged {
-                max-width: 100%;
-                max-height: 100%;
-                width: auto;
-                height: auto;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="menu" onclick="toggleMenu()">
         <span></span>
@@ -139,10 +28,10 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/service-worker.js').then(function (registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(error) {
+                }, function (error) {
                     console.log('ServiceWorker registration failed: ', error);
                 });
             });
@@ -154,16 +43,15 @@
 
         // Predefined list of image paths
         const images = [];
-        for (let i = 1; i <= 90; i++) {
+        for (let i = 1; i <= 100; i++) {
             images.push(`images/HIGHERWAV${i}.png`);
         }
 
         // Function to load images into the gallery
         function loadImages(imagePaths) {
-            imagePaths.forEach((image, index) => {
+            imagePaths.forEach((image) => {
                 const photoDiv = document.createElement('div');
                 photoDiv.classList.add('photo');
-                photoDiv.style.setProperty('--angle', `${index * 10}deg`);
                 const img = new Image();
                 img.src = image;
                 img.alt = 'Photo';
@@ -171,51 +59,8 @@
                     img.src = 'path/to/placeholder/image.png'; // Provide a path to a placeholder image if original fails
                 };
                 photoDiv.appendChild(img);
-                photoDiv.addEventListener('click', () => {
-                    enlargePhoto(photoDiv, index);
-                });
                 photoContainer.appendChild(photoDiv);
             });
-        }
-
-        function enlargePhoto(photoDiv, index) {
-            if (photoDiv.classList.contains('enlarged')) {
-                photoDiv.classList.remove('enlarged');
-                photoDiv.style.top = ''; // Reset top position
-                currentIndex = -1; // Reset the current index
-            } else {
-                document.querySelectorAll('.photo').forEach(p => {
-                    p.classList.remove('enlarged');
-                    p.style.top = ''; // Reset top position for all photos
-                });
-                const scrollY = window.scrollY;
-                photoDiv.style.top = `${scrollY + window.innerHeight / 2}px`;
-                photoDiv.classList.add('enlarged');
-                currentIndex = index; // Update the current index
-            }
-        }
-
-        document.addEventListener('keydown', (event) => {
-            if (currentIndex === -1) return; // No photo is enlarged
-
-            if (event.key === 'ArrowLeft') {
-                navigatePhotos(-1); // Navigate to the previous photo
-            } else if (event.key === 'ArrowRight') {
-                navigatePhotos(1); // Navigate to the next photo
-            }
-        });
-
-        function navigatePhotos(direction) {
-            const photos = document.querySelectorAll('.photo');
-            let newIndex = currentIndex + direction;
-
-            if (newIndex < 0) {
-                newIndex = photos.length - 1; // Wrap around to the last photo
-            } else if (newIndex >= photos.length) {
-                newIndex = 0; // Wrap around to the first photo
-            }
-
-            enlargePhoto(photos[newIndex], newIndex);
         }
 
         function toggleMenu() {
@@ -252,4 +97,5 @@
         loadImages(images);
     </script>
 </body>
+
 </html>
